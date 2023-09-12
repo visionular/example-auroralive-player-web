@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Visionular player</title>
+    <meta charset="utf-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/base-min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
+      integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls"
+      crossorigin="anonymous"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./styles.css" />
+    <!-- <link -->
+    <!--   rel="stylesheet" -->
+    <!--   href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" -->
+    <!-- /> -->
+    <script type="module" src="./index.ts"></script>
+  </head>
+  <body>
+    <div id="main">
+      <div class="header">
+        <h1>Visionular player</h1>
+      </div>
+
+      <div class="content">
+        <form class="pure-form">
+          <fieldset>
+            <label>URL</label>
+            <input id="url" type="url" class="pure-input-3-4" />
+            <a id="play" type="submit" class="pure-button pure-button-primary"
+              >Play</a
+            >
+          </fieldset>
+          <fieldset>
+            <label>TOKEN</label>
+            <input
+              id="token"
+              type="text"
+              name="token"
+              value=""
+              class="pure-input-3-4"
+            />
+          </fieldset>
+        </form>
+        <div class="pure-menu pure-menu-horizontal">
+          Choose Layer:
+          <ul class="pure-menu-list">
+            <li id="li-low" class="pure-menu-item">
+              <a href="#" id="low" class="pure-menu-link">Low</a>
+            </li>
+            <li id="li-middle" class="pure-menu-item">
+              <a href="#" id="middle" class="pure-menu-link">Middle</a>
+            </li>
+            <li id="li-high" class="pure-menu-item">
+              <a href="#" id="high" class="pure-menu-link">High</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="vid">
+        <video autoplay muted controls playsinline></video>
+      </div>
+
+      <div class="content">
+        <div class="pure-g">
+          <div class="pure-u-1-4"><strong>Client Time:</strong></div>
+          <div class="pure-u-3-4" id="localTimeMs"></div>
+          <div class="pure-u-1-4"><strong>Connected to:</strong></div>
+          <div class="pure-u-3-4" id="remote-addr"></div>
+          <div class="pure-u-1-4"><strong>Resource:</strong></div>
+          <div class="pure-u-3-4" id="resource"></div>
+          <div class="pure-u-1-4"><strong>Dimension:</strong></div>
+          <div class="pure-u-3-4" id="dimension"></div>
+          <div class="pure-u-1-4"><strong>FPS:</strong></div>
+          <div class="pure-u-3-4" id="fps"></div>
+          <div class="pure-u-1-4"><strong>Bitrate:</strong></div>
+          <div class="pure-u-3-4" id="bitrate"></div>
+          <div class="pure-u-1-4"><strong>PTS:</strong></div>
+          <div class="pure-u-3-4" id="pts"></div>
+          <div class="pure-u-1-4"><strong>Keyframe:</strong></div>
+          <div class="pure-u-3-4" id="key-frames-decoded"></div>
+          <div class="pure-u-1-4"><strong>PLI:</strong></div>
+          <div class="pure-u-3-4" id="pliCount"></div>
+          <div class="pure-u-1-4"><strong>NACK:</strong></div>
+          <div class="pure-u-3-4" id="nackCount"></div>
+          <div class="pure-u-1-4"><strong>Freeze:</strong></div>
+          <div class="pure-u-3-4" id="freeze"></div>
+          <div class="pure-u-1-4"><strong>Packets:</strong></div>
+          <div class="pure-u-3-4" id="packetsReceived"></div>
+          <div class="pure-u-1-4"><strong>SSRC:</strong></div>
+          <div class="pure-u-3-4" id="ssrc"></div>
+          <div class="pure-u-1-4"><strong>Packet Loss:</strong></div>
+          <div class="pure-u-3-4" id="stats-packetloss"></div>
+          <div class="pure-u-1-4"><strong>RTT:</strong></div>
+          <div class="pure-u-4-4" id="stats-current-rtt"></div>
+          <div class="pure-u-4-4" id="stats-incoming-bitrate"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
