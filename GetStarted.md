@@ -10,13 +10,13 @@ The following shows how to use the Web player. You can find all the source codes
 
 3. Get the element of video
 
-   ```
+   ```js
    const video = document.querySelector('video');
    ```
 
 4. Create an instance of player, passing some params:
 
-   ```
+   ```js
    let player: AuroraLivePlayer;
    if (video) {
      player = new AuroraLivePlayer({
