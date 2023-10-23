@@ -78,6 +78,37 @@ The content `<div>` is where all your content goes.
   color: #888;
 }
 
+.toast-layout{
+  position: fixed;
+  width: 100vw;
+  height: 10vh;
+  text-align: center;
+}
+.toast .content{
+  margin: auto;
+  margin-bottom: 16px;
+  width: max-content;
+  padding: 20px;
+  text-align: center;
+  color: white;
+  background-color: black;
+  border-radius: 28px;
+}
+
+.hide-toast{
+  animation:remove .5s ease-out;
+}
+@keyframes remove {
+  from{
+      height: 56px;
+      opacity: 1;
+  }
+  to{
+      height: 0;
+      opacity: 0;
+  }
+}
+
 /*
 The `#menu` `<div>` is the parent `<div>` that contains the `.pure-menu` that
 appears on the left side of the page.
