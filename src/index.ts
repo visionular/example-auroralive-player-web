@@ -194,6 +194,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   dimElement = document.querySelector<HTMLSpanElement>('#dimension');
   fpsElement = document.querySelector<HTMLSpanElement>('#fps');
+  recvFpsElement = document.querySelector<HTMLSpanElement>('#received-fps');
   remoteAddrElement = document.querySelector<HTMLSpanElement>('#remote-addr');
   ptsElement = document.querySelector<HTMLSpanElement>('#pts');
   keyFramesDecodedElement = document.querySelector<HTMLSpanElement>(
@@ -216,6 +217,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           ? player.inBoundRtp.lastPacketReceivedTimestamp.toLocaleString()
           : ''
       }`;
+      recvFpsElement.innerHTML = `${player.inBoundRtp.framesPerSecond??'0'}`;
       keyFramesDecodedElement.innerHTML = `${player.inBoundRtp.keyFramesDecoded}`;
       pliElement.innerHTML = `${player.inBoundRtp.pliCount}`;
       packetsReceivedElement.innerHTML = `${player.inBoundRtp.packetsReceived}`;
