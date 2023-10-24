@@ -29,6 +29,29 @@ function updateClientClock() {
   }
 }
 
+function showToast(content: string, duration: number) {
+  const toast = document.getElementById("Toast")
+  if (toast == null) {
+    const toast = document.createElement("div")
+      toast.setAttribute("id", "Toast")
+      toast.setAttribute("class", "toast-layout")
+      document.body.insertBefore(toast, document.body.firstChild)
+      showToast(content, duration)
+      return
+  }
+  const toastItem = document.createElement("div")
+  toastItem.setAttribute("class", "toast")
+  toastItem.innerHTML = '<div class="content">' + content + '</div>'
+  setTimeout(function () {
+      toastItem.setAttribute('class', 'toast hide-toast')
+  }, duration)
+  toastItem.onanimationend = function () {
+      toastItem.remove()
+  }
+  toast.appendChild(toastItem)
+
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   const input = document.querySelector<HTMLInputElement>('#url');
   const token = document.querySelector<HTMLInputElement>('#token');
@@ -67,8 +90,42 @@ window.addEventListener('DOMContentLoaded', async () => {
       iceServers: iceServers,
       debug: true,
       statsTypeFilter: '^candidate-*|^inbound-rtp',
-      retry: 0
+      retry: 0,
+      callbacks: {
+        onPlayerError: (msg) => {
+          showToast( msg, 2000);
+        },
+        onPlaybackSuccess: (streamInfo) => {
+          showToast( 'playback success', 2000);
+          const layerSelect = document.getElementById("layer-select");
+          if (layerSelect != null) {
+            layerSelect.options.length = 0;
+            for (let i = 0; i < streamInfo.videoLayersInfo.layers.length; i++) {
+              const newOption = document.createElement("OPTION");
+              newOption.text = streamInfo.videoLayersInfo.layers[i].width + "x" + streamInfo.videoLayersInfo.layers[i].height;
+              newOption.value = streamInfo.videoLayersInfo.layers[i].rid;
+              layerSelect.options.add(newOption);
+            }
+            layerSelect.selectedIndex = streamInfo.videoLayersInfo.current;
+            layerSelect.onchange = onLayerSelected;
+          }
+        },
+        onSwitchLayerSuccess: () => {
+          showToast( 'switch layer success', 2000);
+        },
+        onSwitchLayerFailed: (msg) => {
+          showToast( msg, 2000);
+        }
+      }
     });
+  }
+
+  async function onLayerSelected() {
+    const layerSelect = document.getElementById("layer-select");
+    if (layerSelect != null) {
+      console.log(`layer Select ${layerSelect.options[layerSelect.selectedIndex].value}`);
+      await player.layer(layerSelect.options[layerSelect.selectedIndex].value);
+    }
   }
 
   const playButton = document.querySelector<HTMLButtonElement>('#play');
@@ -132,43 +189,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     await player.load(new URL(url), token.value);
   });
 
-  const layerLow = document.querySelector<HTMLButtonElement>('#low');
-  const layerMiddle = document.querySelector<HTMLButtonElement>('#middle');
-  const layerHigh = document.querySelector<HTMLButtonElement>('#high');
-
-  const liLow = document.querySelector<HTMLButtonElement>('#li-low');
-  const liMiddle = document.querySelector<HTMLButtonElement>('#li-middle');
-  const liHigh = document.querySelector<HTMLButtonElement>('#li-high');
-
-  layerLow?.addEventListener('click', async () => {
-    console.log('low clicked');
-    liLow.classList.add('pure-menu-selected');
-    liMiddle.classList.remove('pure-menu-selected');
-    liHigh.classList.remove('pure-menu-selected');
-    await player.layer('q');
-  });
-
-  layerMiddle?.addEventListener('click', async () => {
-    console.log('middle clicked');
-    liLow.classList.remove('pure-menu-selected');
-    liMiddle.classList.add('pure-menu-selected');
-    liHigh.classList.remove('pure-menu-selected');
-    await player.layer('h');
-  });
-
-  layerHigh?.addEventListener('click', async () => {
-    console.log('high clicked');
-    liLow.classList.remove('pure-menu-selected');
-    liMiddle.classList.remove('pure-menu-selected');
-    liHigh.classList.add('pure-menu-selected');
-    await player.layer('f');
-  });
-
   clientTimeMsElement = document.querySelector<HTMLSpanElement>('#localTimeMs');
   window.setInterval(updateClientClock, 1);
 
   dimElement = document.querySelector<HTMLSpanElement>('#dimension');
   fpsElement = document.querySelector<HTMLSpanElement>('#fps');
+  recvFpsElement = document.querySelector<HTMLSpanElement>('#received-fps');
   remoteAddrElement = document.querySelector<HTMLSpanElement>('#remote-addr');
   ptsElement = document.querySelector<HTMLSpanElement>('#pts');
   keyFramesDecodedElement = document.querySelector<HTMLSpanElement>(
@@ -191,6 +217,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           ? player.inBoundRtp.lastPacketReceivedTimestamp.toLocaleString()
           : ''
       }`;
+      recvFpsElement.innerHTML = `${player.inBoundRtp.framesPerSecond??'0'}`;
       keyFramesDecodedElement.innerHTML = `${player.inBoundRtp.keyFramesDecoded}`;
       pliElement.innerHTML = `${player.inBoundRtp.pliCount}`;
       packetsReceivedElement.innerHTML = `${player.inBoundRtp.packetsReceived}`;

@@ -49,17 +49,9 @@
         </form>
         <div class="pure-menu pure-menu-horizontal">
           Choose Layer:
-          <ul class="pure-menu-list">
-            <li id="li-low" class="pure-menu-item">
-              <a href="#" id="low" class="pure-menu-link">Low</a>
-            </li>
-            <li id="li-middle" class="pure-menu-item">
-              <a href="#" id="middle" class="pure-menu-link">Middle</a>
-            </li>
-            <li id="li-high" class="pure-menu-item">
-              <a href="#" id="high" class="pure-menu-link">High</a>
-            </li>
-          </ul>
+          <select id="layer-select" style="width: 120px">
+            <option value = "u">unknown</option>>
+          </select>
         </div>
       </div>
 
@@ -77,7 +69,9 @@
           <div class="pure-u-3-4" id="resource"></div>
           <div class="pure-u-1-4"><strong>Dimension:</strong></div>
           <div class="pure-u-3-4" id="dimension"></div>
-          <div class="pure-u-1-4"><strong>FPS:</strong></div>
+          <div class="pure-u-1-4"><strong>Received fps:</strong></div>
+          <div class="pure-u-3-4" id="received-fps"></div>
+          <div class="pure-u-1-4"><strong>Render fps:</strong></div>
           <div class="pure-u-3-4" id="fps"></div>
           <div class="pure-u-1-4"><strong>Bitrate:</strong></div>
           <div class="pure-u-3-4" id="bitrate"></div>

@@ -30,6 +30,9 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
     _remoteAddr = "";
     _inBoundRtp;
     token = "";
+    callbacks;
+    _videoLayersString = null;
+    _videoLayersInfo;
     constructor(opts){
         super();
         this.videoElement = opts.video;
@@ -45,6 +48,7 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
         this.debug = !!opts.debug;
         if (this.debug) this.log = console.log.bind(window.console, "[AuroraLive-player]");
         else this.log = function() {};
+        this.callbacks = opts.callbacks;
     }
     getInBoundRtp(results) {
         let ret;
@@ -85,6 +89,10 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
         return this._resource ?? "";
     }
     async load(url, token) {
+        if (url.href.length == 0) {
+            if (this.callbacks) this.callbacks.onPlayerError("playback id is empty");
+            return;
+        }
         this.url = url;
         this.token = token;
         this.connect();
@@ -100,7 +108,10 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
                 encodingId: l
             })
         });
-        if (!response.ok) this.error(`layer response status: ${response.status}`);
+        if (!response.ok) {
+            this.error(`layer response status: ${response.status}`);
+            if (this.callbacks?.onSwitchLayerFailed) this.callbacks.onSwitchLayerFailed(`switch layer error. ${response.status}`);
+        } else if (this.callbacks?.onSwitchLayerSuccess) this.callbacks.onSwitchLayerSuccess();
     }
     mute() {
         this.videoElement.muted = true;
@@ -217,6 +228,7 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
         const offer = this.peer.localDescription;
         if (!offer) {
             this.error("offer nil");
+            if (this.callbacks) this.callbacks.onPlayerError("offer nil");
             return;
         }
         this.log(`sending offer ${offer.sdp}`);
@@ -230,7 +242,10 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
         });
         if (response.ok) {
             this._resource = response.headers.get("Location");
+            this._videoLayersString = response.headers.get("X-WZ-Rtc-Layer");
             this.log("WHEP Resource", this._resource);
+            this.log("Video Layers Info", this._videoLayersString);
+            if (this._videoLayersString) this._videoLayersInfo = JSON.parse(this._videoLayersString);
             const answer = await response.text();
             // TODO: check sdp
             try {
@@ -238,8 +253,14 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
                     type: "answer",
                     sdp: answer
                 });
+                if (this.callbacks && this._videoLayersInfo) this.callbacks.onPlaybackSuccess({
+                    videoLayersInfo: this._videoLayersInfo
+                });
             } catch (e) {
-                if (e instanceof Error) this.error(`setRemoteDescription failed: ${e.message}`);
+                if (e instanceof Error) {
+                    this.error(`setRemoteDescription failed: ${e.message}`);
+                    if (this.callbacks) this.callbacks.onPlayerError(`setRemoteDescription failed: ${e.message}`);
+                }
                 this.stop();
             }
             // } else if (response.status === 400) {
@@ -247,7 +268,10 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
             // } else if (response.status === 406 && this.audio) {
             //   this.log(`return 406`);
             this.log(`Got answer: ${answer}`);
-        } else this.error(`sendAnswer response: ${response.status}`);
+        } else {
+            this.error(`sendAnswer response: ${response.status}`);
+            if (this.callbacks) this.callbacks.onPlayerError(`sendAnswer response: ${response.status}`);
+        }
     }
     iceGatheringTimeout() {
         this.log("IceGatheringTimeout");
