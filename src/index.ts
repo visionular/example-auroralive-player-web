@@ -128,9 +128,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  let clickPlayTime = new Date();
+  let fristFrame = false;
+
   const playButton = document.querySelector<HTMLButtonElement>('#play');
   playButton?.addEventListener('click', async () => {
     const url = input.value;
+    clickPlayTime = new Date();
+    fristFrame = false;
 
     const packetsLost: PacketsLost = { video: 0, audio: 0 };
 
@@ -197,6 +202,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   recvFpsElement = document.querySelector<HTMLSpanElement>('#received-fps');
   remoteAddrElement = document.querySelector<HTMLSpanElement>('#remote-addr');
   ptsElement = document.querySelector<HTMLSpanElement>('#pts');
+  fristFrameRenderElement = document.querySelector<HTMLSpanElement>('#first-frame-render');
+  jbDelayMs = document.querySelector<HTMLSpanElement>('#jitter_buffer_ms');
   keyFramesDecodedElement = document.querySelector<HTMLSpanElement>(
     '#key-frames-decoded'
   );
@@ -208,6 +215,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   nackElement = document.querySelector<HTMLSpanElement>('#nackCount');
   resourceElement = document.querySelector<HTMLSpanElement>('#resource');
 
+  let last_jb_delay, last_jb_emitted;
+
   setInterval(() => {
     if (!video.paused) {
       dimElement.innerHTML = video.videoWidth + 'x' + video.videoHeight;
@@ -217,6 +226,9 @@ window.addEventListener('DOMContentLoaded', async () => {
           ? player.inBoundRtp.lastPacketReceivedTimestamp.toLocaleString()
           : ''
       }`;
+      jbDelayMs.innerHTML = `${Math.round(calcu(player.inBoundRtp.jitterBufferDelay*1000, last_jb_delay, player.inBoundRtp.jitterBufferEmittedCount, last_jb_emitted))+'ms'}`;
+      last_jb_delay = player.inBoundRtp.jitterBufferDelay*1000;
+      last_jb_emitted = player.inBoundRtp.jitterBufferEmittedCount;
       recvFpsElement.innerHTML = `${player.inBoundRtp.framesPerSecond??'0'}`;
       keyFramesDecodedElement.innerHTML = `${player.inBoundRtp.keyFramesDecoded}`;
       pliElement.innerHTML = `${player.inBoundRtp.pliCount}`;
@@ -228,11 +240,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }, 1000);
 
+  function calcu(now0, last0, now1, last1){
+    let avgValue;
+   if(now1 > last1){
+    avgValue = (now0 - last0)/(now1 - last1);
+   }
+   return avgValue;
+  }
+
   let last_media_time, last_frame_num, fps;
   const fps_rounder = [];
   let frame_not_seeked = true;
 
   function ticker(useless, metadata) {
+    if(!fristFrame){
+      timeDiff = new Date().getTime() - clickPlayTime.getTime();
+      fristFrameRenderElement.textContent = timeDiff + 'ms'
+      fristFrame = true;
+    }
     const media_time_diff = Math.abs(metadata.mediaTime - last_media_time);
     const frame_num_diff = Math.abs(metadata.presentedFrames - last_frame_num);
     const diff = media_time_diff / frame_num_diff;
