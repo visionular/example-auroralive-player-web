@@ -216,7 +216,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // ssrcElement = document.querySelector<HTMLSpanElement>('#ssrc');
   freezeElement = document.querySelector<HTMLSpanElement>('#freeze');
   nackElement = document.querySelector<HTMLSpanElement>('#nackCount');
-  resourceElement = document.querySelector<HTMLSpanElement>('#resource');
+  //resourceElement = document.querySelector<HTMLSpanElement>('#resource');
 
   let last_jb_delay, last_jb_emitted;
 
@@ -239,7 +239,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       // ssrcElement.innerHTML = `${player.inBoundRtp.ssrc}`;
       freezeElement.innerHTML = `${player.inBoundRtp.freezeCount} ${player.inBoundRtp.totalFreezesDuration}s`;
       nackElement.innerHTML = `${player.inBoundRtp.nackCount}`;
-      resourceElement.innerHTML = `${player.resource}`;
+      //resourceElement.innerHTML = `${player.resource}`;
     }
   }, 1000);
 
