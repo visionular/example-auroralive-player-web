@@ -47,6 +47,7 @@ function showToast(content: string, duration: number) {
   }, duration)
   toastItem.onanimationend = function () {
       toastItem.remove()
+      toast.remove()
   }
   toast.appendChild(toastItem)
 
@@ -97,6 +98,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         },
         onPlaybackSuccess: (streamInfo) => {
           showToast( 'playback success', 2000);
+          signalCostElement = document.querySelector<HTMLSpanElement>('#signal-cost');
+          const signaltTimeDiff = new Date().getTime() - clickPlayTime.getTime();
+          signalCostElement.textContent = signaltTimeDiff + 'ms'
           const layerSelect = document.getElementById("layer-select");
           if (layerSelect != null) {
             layerSelect.options.length = 0;
@@ -197,10 +201,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   clientTimeMsElement = document.querySelector<HTMLSpanElement>('#localTimeMs');
   window.setInterval(updateClientClock, 1);
 
-  dimElement = document.querySelector<HTMLSpanElement>('#dimension');
-  fpsElement = document.querySelector<HTMLSpanElement>('#fps');
-  recvFpsElement = document.querySelector<HTMLSpanElement>('#received-fps');
-  remoteAddrElement = document.querySelector<HTMLSpanElement>('#remote-addr');
+  resolutionElement = document.querySelector<HTMLSpanElement>('#resolution');
+  renderFpsElement = document.querySelector<HTMLSpanElement>('#render-fps');
+  // remoteAddrElement = document.querySelector<HTMLSpanElement>('#remote-addr');
   ptsElement = document.querySelector<HTMLSpanElement>('#pts');
   fristFrameRenderElement = document.querySelector<HTMLSpanElement>('#first-frame-render');
   jbDelayMs = document.querySelector<HTMLSpanElement>('#jitter_buffer_ms');
@@ -210,7 +213,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   pliElement = document.querySelector<HTMLSpanElement>('#pliCount');
   packetsReceivedElement =
     document.querySelector<HTMLSpanElement>('#packetsReceived');
-  ssrcElement = document.querySelector<HTMLSpanElement>('#ssrc');
+  // ssrcElement = document.querySelector<HTMLSpanElement>('#ssrc');
   freezeElement = document.querySelector<HTMLSpanElement>('#freeze');
   nackElement = document.querySelector<HTMLSpanElement>('#nackCount');
   resourceElement = document.querySelector<HTMLSpanElement>('#resource');
@@ -219,8 +222,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   setInterval(() => {
     if (!video.paused) {
-      dimElement.innerHTML = video.videoWidth + 'x' + video.videoHeight;
-      remoteAddrElement.innerHTML = `${player.remoteAddr}`;
+      resolutionElement.innerHTML = video.videoWidth + 'x' + video.videoHeight;
+      // remoteAddrElement.innerHTML = `${player.remoteAddr}`;
       ptsElement.innerHTML = `${
         player.inBoundRtp.lastPacketReceivedTimestamp
           ? player.inBoundRtp.lastPacketReceivedTimestamp.toLocaleString()
@@ -229,11 +232,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       jbDelayMs.innerHTML = `${Math.round(calcu(player.inBoundRtp.jitterBufferDelay*1000, last_jb_delay, player.inBoundRtp.jitterBufferEmittedCount, last_jb_emitted))+'ms'}`;
       last_jb_delay = player.inBoundRtp.jitterBufferDelay*1000;
       last_jb_emitted = player.inBoundRtp.jitterBufferEmittedCount;
-      recvFpsElement.innerHTML = `${player.inBoundRtp.framesPerSecond??'0'}`;
+      renderFpsElement.innerHTML = `${player.inBoundRtp.framesPerSecond??'0'}`;
       keyFramesDecodedElement.innerHTML = `${player.inBoundRtp.keyFramesDecoded}`;
       pliElement.innerHTML = `${player.inBoundRtp.pliCount}`;
       packetsReceivedElement.innerHTML = `${player.inBoundRtp.packetsReceived}`;
-      ssrcElement.innerHTML = `${player.inBoundRtp.ssrc}`;
+      // ssrcElement.innerHTML = `${player.inBoundRtp.ssrc}`;
       freezeElement.innerHTML = `${player.inBoundRtp.freezeCount} ${player.inBoundRtp.totalFreezesDuration}s`;
       nackElement.innerHTML = `${player.inBoundRtp.nackCount}`;
       resourceElement.innerHTML = `${player.resource}`;
@@ -248,7 +251,7 @@ window.addEventListener('DOMContentLoaded', async () => {
    return avgValue;
   }
 
-  let last_media_time, last_frame_num, fps;
+  let last_media_time, last_frame_num;
   const fps_rounder = [];
   let frame_not_seeked = true;
 
@@ -270,9 +273,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       document.hasFocus()
     ) {
       fps_rounder.push(diff);
-      fps = Math.round(1 / get_fps_average());
-      fpsElement.textContent =
-        fps + ', certainty: ' + fps_rounder.length * 2 + '%';
+      // fps = Math.round(1 / get_fps_average());
+      // fpsElement.textContent =
+      //   fps + ', certainty: ' + fps_rounder.length * 2 + '%';
     }
     frame_not_seeked = true;
     last_media_time = metadata.mediaTime;
@@ -285,7 +288,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     frame_not_seeked = false;
   });
 
-  function get_fps_average() {
-    return fps_rounder.reduce((a, b) => a + b) / fps_rounder.length;
-  }
+  // function get_fps_average() {
+  //   return fps_rounder.reduce((a, b) => a + b) / fps_rounder.length;
+  // }
 });
