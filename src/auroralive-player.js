@@ -217,7 +217,7 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
             await this.peer.setLocalDescription(offer);
             this.waitingForCandidates = true;
             this.iceGatheringTimeoutT = setTimeout(this.iceGatheringTimeout.bind(this), $993e264ec8d12465$var$DEFAULT_CONNECT_TIMEOUT);
-        // await this.sendOffer();
+            await this.sendOffer();
         }
     }
     async sendOffer() {
@@ -247,6 +247,7 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
             this.log("Video Layers Info", this._videoLayersString);
             if (this._videoLayersString) this._videoLayersInfo = JSON.parse(this._videoLayersString);
             const answer = await response.text();
+            this.log(`Got answer: ${answer}`);
             // TODO: check sdp
             try {
                 await this.peer.setRemoteDescription({
@@ -263,11 +264,10 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
                 }
                 this.stop();
             }
-            // } else if (response.status === 400) {
-            //   this.log(`sendAnswer response 400`);
-            // } else if (response.status === 406 && this.audio) {
-            //   this.log(`return 406`);
-            this.log(`Got answer: ${answer}`);
+        // } else if (response.status === 400) {
+        //   this.log(`sendAnswer response 400`);
+        // } else if (response.status === 406 && this.audio) {
+        //   this.log(`return 406`);
         } else {
             this.error(`sendAnswer response: ${response.status}`);
             if (this.callbacks) this.callbacks.onPlayerError(`sendAnswer response: ${response.status}`);
@@ -289,7 +289,6 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
     async onDoneWaitingForCandidates() {
         this.waitingForCandidates = false;
         clearTimeout(this.iceGatheringTimeoutT);
-        await this.sendOffer();
     }
     async onConnectionStateChange() {
         this.log(`onConnectionStateChange ${this.peer.connectionState}`);
