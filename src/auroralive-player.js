@@ -1,10 +1,12 @@
 var $enQVi$events = require("events");
+var $enQVi$sdptransform = require("sdp-transform");
 
 function $parcel$export(e, n, v, s) {
   Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
 }
 
 $parcel$export(module.exports, "AuroraLivePlayer", () => $993e264ec8d12465$export$6e0469b79c1dcece);
+
 
 const $993e264ec8d12465$var$DEFAULT_CONNECT_TIMEOUT = 2000;
 const $993e264ec8d12465$var$RECONNECT_ATTEMPTS = 2;
@@ -214,6 +216,22 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
                 direction: "recvonly"
             });
             const offer = await this.peer.createOffer();
+            if (offer.sdp) {
+                const res = $enQVi$sdptransform.parse(offer.sdp);
+                for (const media of res.media)if (media.type == "audio") {
+                    if (media.rtcpFb && media.rtcpFb.length > 0) media.rtcpFb.push({
+                        payload: media.rtcpFb[0].payload,
+                        type: "nack"
+                    });
+                    else media.rtcpFb = [
+                        {
+                            payload: media.fmtp[0].payload,
+                            type: "nack"
+                        }
+                    ];
+                }
+                offer.sdp = $enQVi$sdptransform.write(res);
+            }
             await this.peer.setLocalDescription(offer);
             this.waitingForCandidates = true;
             this.iceGatheringTimeoutT = setTimeout(this.iceGatheringTimeout.bind(this), $993e264ec8d12465$var$DEFAULT_CONNECT_TIMEOUT);

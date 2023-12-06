@@ -5,7 +5,7 @@ interface PacketsLost {
 }
 const WHEP_URL =
   process.env.WHEP_URL || // "http://192.168.3.2:8800/whep/endpoint/lk"
-  'http://alb-66av0pt5j1yd72502w.cn-wulanchabu.alb.aliyuncs.com/whep/endpoint/202312-M2YzMWE1YzEyYjgzYjM0YmQ2ZDIzNmY0ODdjM2Q4Y2Y';
+  'https://stream.visionular.com/whep/endpoint/YTg0NjQ1ZWNhZmYxN2VmNjU5OTMyMjU0NmE3YzFkMzk';
 
 let clientTimeMsElement: HTMLSpanElement | null;
 
@@ -119,7 +119,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         onPlaybackSuccess: (streamInfo) => {
           showToast( 'playback success', 2000);
           signalCostElement = document.querySelector<HTMLSpanElement>('#signal-cost');
-          let signalFinish = new Date()
+          const signalFinish = new Date()
           const signaltTimeDiff = signalFinish.getTime() - clickPlayTime.getTime();
           console.log(`signal finish timestamp ${getCurrentClientClock()}`);
           signalCostElement.textContent = signaltTimeDiff + 'ms'
@@ -274,7 +274,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   video!.onloadeddata = ()=>{
-    let timeDiff = new Date().getTime() - clickPlayTime.getTime();
+    const timeDiff = new Date().getTime() - clickPlayTime.getTime();
     fristFrameRenderElement.textContent = timeDiff + 'ms'
     console.log(`first frame rendered timestamp ${getCurrentClientClock()}`);
   }
