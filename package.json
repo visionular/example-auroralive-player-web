@@ -7,7 +7,10 @@
   "types": "dist/types.d.ts",
   "targets": {
     "serve": {
-      "source": ["src/index.html", "src/index.ts"],
+      "source": [
+        "src/index.html",
+        "src/index.ts"
+      ],
       "distDir": "./dist",
       "isLibrary": false,
       "engines": {
@@ -25,7 +28,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "events": "^3.3.0"
+    "events": "^3.3.0",
+    "sdp-transform": "^2.14.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.6",
@@ -33,6 +37,7 @@
     "@parcel/packager-ts": "^2.9.3",
     "@parcel/transformer-typescript-types": "^2.9.3",
     "@types/events": "^3.0.0",
+    "@types/sdp-transform": "^2.4.9",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "eslint": "^8.44.0",

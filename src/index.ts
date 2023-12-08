@@ -16,6 +16,27 @@ function pad(v: number, n: number) {
 }
 
 function updateClientClock() {
+  if (clientTimeMsElement) {
+    clientTimeMsElement.innerHTML = getCurrentClientClock();
+  }
+}
+
+function getDuration(second: number){
+  if(second < 60){
+      return `${second} s`
+  }else if(second < 60*60){
+      return `${Math.floor(second/60)} min ${second%60} s`
+  }else if(second < 24*60*60){
+      return `${Math.floor(second/3600)} hour ${Math.floor((second%3600)/60)} min ${(second%3600)%60} s`
+  }else if(second < 240*60*60){
+      return `${Math.floor(second/(24*3600))} day ${Math.floor((second%(24*3600))/3600)} hour ${Math.floor((second%(24*3600))%3600/60)} min ${(second%(24*3600))%3600%60} s`
+  }
+  else{
+      return "> 10 day"
+  }
+}
+
+function getCurrentClientClock() {
   const now = new Date();
   const [h, m, s, ms] = [
     now.getHours(),
@@ -23,10 +44,7 @@ function updateClientClock() {
     now.getSeconds(),
     now.getMilliseconds()
   ];
-  const ts = `${pad(h, 2)}:${pad(m, 2)}:${pad(s, 2)}.${pad(ms, 3)}`;
-  if (clientTimeMsElement) {
-    clientTimeMsElement.innerHTML = ts;
-  }
+  return `${pad(h, 2)}:${pad(m, 2)}:${pad(s, 2)}.${pad(ms, 3)}`;
 }
 
 function showToast(content: string, duration: number) {
@@ -86,6 +104,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   let player: AuroraLivePlayer;
   if (video) {
+    video.width = 640
+    video.height = 360
     player = new AuroraLivePlayer({
       video: video,
       iceServers: iceServers,
@@ -99,7 +119,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         onPlaybackSuccess: (streamInfo) => {
           showToast( 'playback success', 2000);
           signalCostElement = document.querySelector<HTMLSpanElement>('#signal-cost');
-          const signaltTimeDiff = new Date().getTime() - clickPlayTime.getTime();
+          const signalFinish = new Date()
+          const signaltTimeDiff = signalFinish.getTime() - clickPlayTime.getTime();
+          console.log(`signal finish timestamp ${getCurrentClientClock()}`);
           signalCostElement.textContent = signaltTimeDiff + 'ms'
           const layerSelect = document.getElementById("layer-select");
           if (layerSelect != null) {
@@ -133,13 +155,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   let clickPlayTime = new Date();
-  let fristFrame = false;
 
   const playButton = document.querySelector<HTMLButtonElement>('#play');
   playButton?.addEventListener('click', async () => {
     const url = input.value;
     clickPlayTime = new Date();
-    fristFrame = false;
+    console.log(`click play button timestamp ${getCurrentClientClock()}`);
 
     const packetsLost: PacketsLost = { video: 0, audio: 0 };
 
@@ -200,7 +221,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   clientTimeMsElement = document.querySelector<HTMLSpanElement>('#localTimeMs');
   window.setInterval(updateClientClock, 1);
-
+  durationElement = document.querySelector<HTMLSpanElement>('#duration');
   resolutionElement = document.querySelector<HTMLSpanElement>('#resolution');
   renderFpsElement = document.querySelector<HTMLSpanElement>('#render-fps');
   // remoteAddrElement = document.querySelector<HTMLSpanElement>('#remote-addr');
@@ -223,6 +244,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   setInterval(() => {
     if (!video.paused) {
       resolutionElement.innerHTML = video.videoWidth + 'x' + video.videoHeight;
+      durationElement.innerHTML = getDuration(Math.floor((new Date().getTime() - clickPlayTime.getTime())/1000))
       // remoteAddrElement.innerHTML = `${player.remoteAddr}`;
       ptsElement.innerHTML = `${
         player.inBoundRtp.lastPacketReceivedTimestamp
@@ -251,42 +273,14 @@ window.addEventListener('DOMContentLoaded', async () => {
    return avgValue;
   }
 
-  let last_media_time, last_frame_num;
-  const fps_rounder = [];
-  let frame_not_seeked = true;
-
-  function ticker(useless, metadata) {
-    if(!fristFrame){
-      timeDiff = new Date().getTime() - clickPlayTime.getTime();
-      fristFrameRenderElement.textContent = timeDiff + 'ms'
-      fristFrame = true;
-    }
-    const media_time_diff = Math.abs(metadata.mediaTime - last_media_time);
-    const frame_num_diff = Math.abs(metadata.presentedFrames - last_frame_num);
-    const diff = media_time_diff / frame_num_diff;
-    if (
-      diff &&
-      diff < 1 &&
-      frame_not_seeked &&
-      fps_rounder.length < 50 &&
-      video.playbackRate === 1 &&
-      document.hasFocus()
-    ) {
-      fps_rounder.push(diff);
-      // fps = Math.round(1 / get_fps_average());
-      // fpsElement.textContent =
-      //   fps + ', certainty: ' + fps_rounder.length * 2 + '%';
-    }
-    frame_not_seeked = true;
-    last_media_time = metadata.mediaTime;
-    last_frame_num = metadata.presentedFrames;
-    video.requestVideoFrameCallback(ticker);
+  video!.onloadeddata = ()=>{
+    const timeDiff = new Date().getTime() - clickPlayTime.getTime();
+    fristFrameRenderElement.textContent = timeDiff + 'ms'
+    console.log(`first frame rendered timestamp ${getCurrentClientClock()}`);
   }
-  video.requestVideoFrameCallback(ticker);
-  video.addEventListener('seeked', function () {
-    fps_rounder.pop();
-    frame_not_seeked = false;
-  });
+  video!.onloadstart = ()=>{
+    console.log(`render frame start timestamp ${getCurrentClientClock()}`);
+  }
 
   // function get_fps_average() {
   //   return fps_rounder.reduce((a, b) => a + b) / fps_rounder.length;
