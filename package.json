@@ -21,7 +21,8 @@
   "scripts": {
     "serve": "npx parcel --target serve --dist-dir dist --host 0.0.0.0 --port 2345 --no-cache --no-hmr",
     "lint": "npx eslint . --ext .ts",
-    "prettier": "npx prettier --write ."
+    "prettier": "npx prettier --write .",
+    "build": "npx parcel build --target serve --dist-dir dist"
   },
   "engines": {
     "node": ">=18.15.0"
