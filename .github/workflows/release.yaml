@@ -18,7 +18,7 @@ jobs:
       - name: Run build
         run: npm run build
       - name: Zip target
-        run: tar -czvf dist.tar.gz dist
+        run: tar -czvf visionular-dist.tar.gz dist
       - name: Deploy to Package
         uses: ncipollo/release-action@v1
         with:
