@@ -16,7 +16,8 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
     iceServers;
     debug;
     url = {};
-    reconnectAttemptsLeft = $993e264ec8d12465$var$RECONNECT_ATTEMPTS;
+    reconnectAttemptsLeft = 0;
+    reconnectAttempts = 0;
     statsInterval;
     statsTypeFilter = undefined;
     msStatsInterval = 1000;
@@ -40,7 +41,7 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
         this.videoElement = opts.video;
         this.statsTypeFilter = opts.statsTypeFilter;
         this.mediaTimeoutThreshold = opts.timeoutThreshold ?? this.mediaTimeoutThreshold;
-        this.reconnectAttemptsLeft = opts.retry ?? 0;
+        this.reconnectAttemptsLeft = this.reconnectAttempts = opts.retry ?? $993e264ec8d12465$var$RECONNECT_ATTEMPTS;
         this.iceServers = [
             {
                 urls: "stun:stun.l.google.com:19302"
@@ -322,7 +323,7 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
             this.reconnectAttemptsLeft--;
         } else if (this.peer.connectionState === "connected") {
             this.log("Connected");
-            this.reconnectAttemptsLeft = $993e264ec8d12465$var$RECONNECT_ATTEMPTS;
+            this.reconnectAttemptsLeft = this.reconnectAttempts;
         }
     }
     onTrack(event) {
