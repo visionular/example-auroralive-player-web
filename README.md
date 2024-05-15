@@ -6,7 +6,7 @@ This example was tested in Chrome v115.
 
 The following shows how to use the Web player. You can find all the source codes at https://github.com/visionular/example-auroralive-player-web.
 
-1. Download the latest js file `curl -O https://auroralive-player.s3.amazonaws.com/vX.Y.Z/auroralive-player.js`.
+1. Download the latest js file `curl -O https://download.visionular.com/vX.Y.Z/auroralive-player.js`.
 
 2. Import the js library.
 
