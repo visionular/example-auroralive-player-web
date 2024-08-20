@@ -314,6 +314,7 @@ class $993e264ec8d12465$export$6e0469b79c1dcece extends (0, $enQVi$events.EventE
         if (this.peer.connectionState === "failed") {
             // this.emit(Message.PEER_CONNECTION_FAILED);
             this.peer && this.peer.close();
+            if (this.callbacks) this.callbacks.onPlayerError(`ICE Connection failed, attempts total: ${this.reconnectAttempts}, left: ${this.reconnectAttemptsLeft}`);
             if (this.reconnectAttemptsLeft <= 0) {
                 this.error("Connection failed, reconnecting failed");
                 return;
